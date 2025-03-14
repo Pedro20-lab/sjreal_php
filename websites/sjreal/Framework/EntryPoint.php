@@ -1,5 +1,5 @@
 <?php
-namespace Ninja;
+namespace Framework;
 
 class EntryPoint {
     public function __construct(private \Framework\Website $website) {

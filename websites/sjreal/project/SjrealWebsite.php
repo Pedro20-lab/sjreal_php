@@ -1,23 +1,19 @@
 <?php
 namespace  project;
 
+use Framework\Authentication;
+
 class SjrealWebsite implements \Framework\Website
 {
 
+    private \Framework\Authentication $authentication;
+    private \Framework\DatabaseTable $userTable;
+
     public function __construct()
     {
-        $pdo = new \PDO('mysql:host=mysql;dbname=sjreal;charset=utf8mb4', 'root', '');
-
-        $this->jokesTable = new \Ninja\DatabaseTable($pdo, 'joke', 'id', '\Ijdb\Entity\Joke', [&$this->authorsTable, &$this->jokeCategoriesTable]);
-
-        $this->authorsTable = new \Ninja\DatabaseTable($pdo, 'author', 'id', '\Ijdb\Entity\Author', [&$this->jokesTable]);
-
-        $this->categoriesTable = new \Ninja\DatabaseTable($pdo, 'category', 'id', '\Ijdb\Entity\Category', [&$this->jokesTable, &$this->jokeCategoriesTable]);
-
-        $this->jokeCategoriesTable = new \Ninja\DatabaseTable($pdo, 'joke_category', 'categoryId');
-
-        $this->authentication = new \Ninja\Authentication($this->authorsTable, 'email', 'password');
-
+        $pdo = new \PDO('mysql:host=mysql;dbname=sjreal;charset=utf8mb4', 'v.je', 'v.je');
+        $this->userTable = new \Framework\DatabaseTable($pdo, 'users', 'id');
+        $this->authentication = new \Framework\Authentication($this->userTable, 'doc_number', 'password');
 
     }
 
@@ -30,17 +26,14 @@ class SjrealWebsite implements \Framework\Website
 
     public function getDefaultRoute(): string
     {
-        return 'joke/home';
+        return 'user/login';
     }
 
     public function getController(string $controllerName): ?object
     {
 
         $controllers = [
-            'joke' => new \Ijdb\Controllers\Joke($this->jokesTable, $this->authorsTable, $this->categoriesTable, $this->authentication),
-            'author' => new \Ijdb\Controllers\Author($this->authorsTable),
-            'login' => new \Ijdb\Controllers\Login($this->authentication),
-            'category' => new \Ijdb\Controllers\Category($this->categoriesTable)
+            'user' => new \project\Controllers\User($this->userTable, $this->authentication)
         ];
 
         return $controllers[$controllerName] ?? null;
@@ -49,23 +42,20 @@ class SjrealWebsite implements \Framework\Website
     public function checkLogin(string $uri): ?string
     {
 
-        $restrictedPages = [
-            'category/list' => \Ijdb\Entity\Author::LIST_CATEGORIES,
-            'category/delete' => \Ijdb\Entity\Author::DELETE_CATEGORY,
-            'category/edit' => \Ijdb\Entity\Author::EDIT_CATEGORY,
-            'author/permissions' => \Ijdb\Entity\Author::EDIT_USER_ACCESS,
-            'author/list' => \Ijdb\Entity\Author::EDIT_USER_ACCESS
+        /*$restrictedPages = [
+
         ];
 
         if (isset($restrictedPages[$uri])) {
             if (!$this->authentication->isLoggedIn()
                 || !$this->authentication->getUser()->hasPermission($restrictedPages[$uri])) {
-                header('location: /login/login');
+                header('location: /user/login');
                 exit();
             }
         }
 
-        return $uri;
+        return $uri;*/
+        return  'On testing';
     }
 
 }
