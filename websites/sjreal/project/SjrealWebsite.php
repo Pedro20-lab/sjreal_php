@@ -8,12 +8,19 @@ class SjrealWebsite implements \Framework\Website
 
     private \Framework\Authentication $authentication;
     private \Framework\DatabaseTable $userTable;
+    private \Framework\DatabaseTable $lodgementTable;
+    private  \Framework\DatabaseTable $stockTable;
+    private \Framework\DatabaseTable $parkingTable;
+
 
     public function __construct()
     {
         $pdo = new \PDO('mysql:host=mysql;dbname=sjreal;charset=utf8mb4', 'v.je', 'v.je');
         $this->userTable = new \Framework\DatabaseTable($pdo, 'users', 'id');
         $this->authentication = new \Framework\Authentication($this->userTable, 'doc_number', 'password');
+        $this->lodgementTable = new \Framework\DatabaseTable($pdo, 'hospedajes', 'id:hospedajes');
+        $this->stockTable = new \Framework\DatabaseTable($pdo, 'inventarios', 'id_inventario');
+        $this->parkingTable = new \Framework\DatabaseTable($pdo, 'parqueaderos', 'id_parqueadero');
 
     }
 
@@ -26,14 +33,19 @@ class SjrealWebsite implements \Framework\Website
 
     public function getDefaultRoute(): string
     {
-        return 'user/login';
+        return 'login/login';
     }
 
     public function getController(string $controllerName): ?object
     {
 
         $controllers = [
-            'user' => new \project\Controllers\User($this->userTable, $this->authentication)
+            'user' => new \Project\Controllers\User($this->userTable, $this->authentication),
+            'login' => new \Project\Controllers\Login($this->authentication),
+            'lodgement' => new \Project\Controllers\Lodgement($this->lodgementTable),
+            'stock' => new \Project\Controllers\Stock($this->stockTable),
+            'employee' => new \project\Controllers\Employee($this->userTable),
+            'parking' => new \project\Controllers\Parking($this->parkingTable),
         ];
 
         return $controllers[$controllerName] ?? null;

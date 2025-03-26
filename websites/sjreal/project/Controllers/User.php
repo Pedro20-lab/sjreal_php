@@ -1,5 +1,5 @@
 <?php
-namespace project\Controllers;
+namespace Project\Controllers;
 use Framework\Authentication;
 use Framework\DatabaseTable;
 
@@ -16,7 +16,6 @@ class User
     }
     public function registerUserSubmit() {
         $user = $_POST['user'];
-        /*
 
         // Start with an empty array
         $errors = [];
@@ -26,26 +25,26 @@ class User
             $errors[] = '';
         }
 
-        if (empty($author['email'])) {
+        if (empty($user['email'])) {
             $errors[] = 'Email cannot be blank';
-        } else if (filter_var($author['email'], FILTER_VALIDATE_EMAIL) == false) {
+        } else if (filter_var($user['email'], FILTER_VALIDATE_EMAIL) == false) {
             $errors[] = 'Invalid email address';
         } else { // If the email is not blank and valid:
             // convert the email to lowercase
-            $author['email'] = strtolower($author['email']);
+            $user['email'] = strtolower($user['email']);
 
             // Search for the lowercase version of $author['email']
-            if (count($this->authorsTable->find('email', $author['email'])) > 0) {
+            if (count($this->userTable->find('email', $user['email'])) > 0) {
                 $errors[] = 'That email address is already registered';
             }
         }
 
-        if (empty($author['password'])) {
+        if (empty($user['password'])) {
             $errors[] = 'Password cannot be blank';
-        }*/
+        }
 
         // If there are no errors, proceed with saving the record in the database
-        if ( true/*count($errors) === 0*/) {
+        if ( count($errors) === 0) {
             // Hash the password before saving it in the database
             $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
 
@@ -54,62 +53,38 @@ class User
             $this->userTable->save($user);
 
             header('Location: /user/success');
-        } /*else {
+        } else {
             // If the data is not valid, show the form again
             return ['template' => 'register.html.php',
                 'title' => 'Register an account',
                 'variables' => [
                     'errors' => $errors,
-                    'author' => $author
+                    'author' => $user
                 ]
             ];
-        }*/
+        }
+    }
+    public function home() {
+        if ($this->authentication->isLoggedIn()) {
+            return [
+                'title' => 'Bienvenido usuario x' ,
+                'template' => 'home.html.php',
+            ];
+        } else {
+            header('Location: /login/login');
+        }
+
     }
 
-    public function success()
-    {
-        return [
-            'template' => 'success.html.php',
-            'title' => 'Usuario registrado',
-        ];
-    }
-
-    public function home()
-    {
+    public function show() {
         $user = $this->authentication->getUser();
         return [
-            'template' => 'home.html.php',
+            'title' => 'Esta es su información',
+            'template' => 'showuser.html.php',
             'variables' => [
                 'user' => $user
             ]
         ];
-    }
-
-    public function login()
-    {
-        return [
-            'template' => 'login.html.php',
-            'title' => 'Login'
-        ];
-    }
-
-    public function loginSubmit() {
-        $success = $this->authentication->login($_POST['doc_number'], $_POST['password']);
-
-        if ($success) {
-            return ['template' => 'loginSuccess.html.php',
-                'title' => 'Log In Successful'
-            ];
-        }
-        else {
-            return ['template' => 'loginForm.html.php',
-                'title' => 'Log in',
-                'variables' => [
-                    'errorMessage' => true
-                ]
-            ];
-        }
-
     }
 
 }
